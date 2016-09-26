@@ -7,6 +7,7 @@ import csv
 import datetime
 import collections
 import sys
+import io
 
 def indent(text):
     return '\n'.join([ '    ' + line for line in text.split('\n')])
@@ -32,8 +33,8 @@ class InvoiceFile(object):
     def from_file(cls, file_name):
         invoice_file = cls(file_name)
         with open(file_name, 'rb') as csv_file:
-            for raw_row in csv.reader(csv_file, delimiter='|'):
-                row = [ field.decode('big5').encode('utf-8') for field in raw_row ]
+            csv_buffer = csv_file.read().decode('big5').encode('utf-8')
+            for row in csv.reader(io.BytesIO(csv_buffer), delimiter='|'):
                 kind = row[0]
                 if kind == 'M':
                     invoice_file._add_invoice_from_row(row)
